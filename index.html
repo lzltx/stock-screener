@@ -1,0 +1,426 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>股票筛选器 - 在线版</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Roboto, system-ui, sans-serif;
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+            color: #e2e8f0;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            padding: 2rem;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 1400px;
+            background: rgba(255, 255, 255, 0.06);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border-radius: 28px;
+            padding: 2rem 2.5rem;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+
+        h1 {
+            font-size: 2.4rem;
+            margin-bottom: 0.3rem;
+            background: linear-gradient(90deg, #38bdf8, #a78bfa);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            font-weight: 700;
+            letter-spacing: -0.5px;
+        }
+
+        .subtitle {
+            color: #94a3b8;
+            font-size: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .filter-panel {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: flex-end;
+            gap: 1.5rem;
+            background: rgba(15, 23, 42, 0.4);
+            border-radius: 20px;
+            padding: 1.5rem;
+            margin: 2rem 0;
+            border: 1px solid rgba(255, 255, 255, 0.06);
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.4rem;
+        }
+
+        label {
+            font-size: 0.8rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: #94a3b8;
+        }
+
+        input[type="number"] {
+            padding: 0.7rem 1rem;
+            border-radius: 12px;
+            border: 1px solid #334155;
+            background: rgba(15, 23, 42, 0.7);
+            color: #e2e8f0;
+            font-size: 0.9rem;
+            outline: none;
+            width: 120px;
+            transition: all 0.2s;
+        }
+
+        input[type="number"]:focus {
+            border-color: #6366f1;
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2);
+        }
+
+        /* 多选下拉框美化 */
+        select[multiple] {
+            padding: 0.5rem;
+            border-radius: 12px;
+            border: 1px solid #334155;
+            background: rgba(15, 23, 42, 0.7);
+            color: #e2e8f0;
+            font-size: 0.85rem;
+            outline: none;
+            min-width: 140px;
+            max-height: 90px;
+            overflow-y: auto;
+            transition: all 0.2s;
+        }
+
+        select[multiple] option {
+            padding: 0.3rem 0.5rem;
+            border-radius: 6px;
+            margin: 2px 0;
+            background: #1e293b;
+            color: #e2e8f0;
+        }
+
+        select[multiple] option:checked {
+            background: linear-gradient(90deg, #6366f1, #8b5cf6);
+            color: white;
+        }
+
+        select[multiple]:focus {
+            border-color: #6366f1;
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2);
+        }
+
+        /* 普通下拉框 */
+        select:not([multiple]) {
+            padding: 0.7rem 1rem;
+            border-radius: 12px;
+            border: 1px solid #334155;
+            background: rgba(15, 23, 42, 0.7);
+            color: #e2e8f0;
+            font-size: 0.9rem;
+            outline: none;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        select:not([multiple]):focus {
+            border-color: #6366f1;
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2);
+        }
+
+        /* 自定义复选框 */
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-top: 1.2rem;
+        }
+
+        .checkbox-group input[type="checkbox"] {
+            appearance: none;
+            -webkit-appearance: none;
+            width: 1.2rem;
+            height: 1.2rem;
+            border: 2px solid #6366f1;
+            border-radius: 6px;
+            background: transparent;
+            cursor: pointer;
+            transition: all 0.2s;
+            position: relative;
+        }
+
+        .checkbox-group input[type="checkbox"]:checked {
+            background: #6366f1;
+            border-color: #6366f1;
+        }
+
+        .checkbox-group input[type="checkbox"]:checked::after {
+            content: "✓";
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%);
+            color: white;
+            font-size: 0.8rem;
+            font-weight: bold;
+        }
+
+        .checkbox-group label {
+            color: #a78bfa;
+            font-size: 0.9rem;
+            font-weight: 600;
+            cursor: pointer;
+            text-transform: none;
+        }
+
+        button {
+            background: linear-gradient(135deg, #4f46e5, #7c3aed);
+            border: none;
+            border-radius: 12px;
+            padding: 0.7rem 1.8rem;
+            font-weight: 600;
+            font-size: 0.9rem;
+            color: white;
+            cursor: pointer;
+            transition: all 0.2s;
+            letter-spacing: 0.3px;
+            box-shadow: 0 4px 12px rgba(79, 70, 229, 0.3);
+        }
+
+        button:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 8px 20px rgba(79, 70, 229, 0.5);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        .result-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 1.5rem;
+            background: rgba(15, 23, 42, 0.5);
+            border-radius: 16px;
+            overflow: hidden;
+        }
+
+        th, td {
+            padding: 0.9rem 1rem;
+            text-align: left;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            font-size: 0.9rem;
+        }
+
+        th {
+            background: rgba(30, 41, 59, 0.8);
+            font-weight: 600;
+            color: #cbd5e1;
+            white-space: nowrap;
+        }
+
+        tr:hover td {
+            background: rgba(99, 102, 241, 0.08);
+        }
+
+        .badge {
+            padding: 0.2rem 0.6rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            background: rgba(99, 102, 241, 0.2);
+            color: #a5b4fc;
+            white-space: nowrap;
+        }
+
+        .positive {
+            color: #4ade80;
+            font-weight: 500;
+        }
+
+        .negative {
+            color: #f87171;
+            font-weight: 500;
+        }
+
+        .token-warning {
+            background: rgba(239, 68, 68, 0.15);
+            border: 1px solid rgba(239, 68, 68, 0.3);
+            color: #fca5a5;
+            padding: 0.8rem 1rem;
+            border-radius: 12px;
+            margin-top: 1rem;
+            display: none;
+        }
+
+        #pagination {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 1rem;
+            margin-top: 1.5rem;
+        }
+
+        #pagination button {
+            background: rgba(30, 41, 59, 0.8);
+            border: 1px solid #334155;
+            color: #e2e8f0;
+            box-shadow: none;
+        }
+
+        #pagination button:hover:not(:disabled) {
+            background: #4f46e5;
+            border-color: #4f46e5;
+        }
+
+        #pagination button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        #pageInfo {
+            color: #94a3b8;
+            font-size: 0.9rem;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h1>股票魔法镜</h1>
+    <div class="filter-panel">
+        <div><label>市值范围</label>
+            <select id="capRange"><option value="">不限</option><option value="0,50">小于50亿</option><option value="50,100">50-100亿</option><option value="100,500">100-500亿</option><option value="500,999999">大于500亿</option></select>
+        </div>
+        <div><label>收盘价小于</label><input type="number" id="maxClose" step="0.01"></div>
+        <div><label>行业</label><select id="industry"><option value="">全部</option></select></div>
+        <div><label>市场</label><select id="market"><option value="">全部</option></select></div>
+        <div><label>MACD信号</label>
+            <select id="macdCond"><option value="">不启用</option><option value="golden_cross">金叉</option><option value="dead_cross">死叉</option><option value="dif_gt_dea">DIF>DEA</option><option value="hist_gt_0">红柱</option></select>
+        </div>
+        <div><label>周线条件</label>
+            <select id="weeklyCond"><option value="">不启用</option><option value="week_green_shrink_gold_zero">绿柱缩减+0轴上将金叉</option></select>
+        </div>
+        <div class="checkbox-group"><input type="checkbox" id="excludeCyb"><label>排除创业板</label></div>
+        <div class="checkbox-group"><input type="checkbox" id="excludeKcb"><label>排除科创板</label></div>
+        <div class="checkbox-group"><input type="checkbox" id="excludeST"><label>排除ST</label></div>
+        <button id="searchBtn">🔍筛选</button>
+    </div>
+    <table id="resultTable" style="display:none">
+        <thead><tr><th>代码</th><th>名称</th><th>行业</th><th>市场</th><th>市值(亿)</th><th>收盘</th><th>DIF</th><th>DEA</th><th>MACD柱</th></tr></thead>
+        <tbody></tbody>
+    </table>
+    <div id="pagination"></div>
+</div>
+<script>
+let allData = [];
+let currentPage = 1, pageSize = 20;
+
+async function loadData() {
+    const res = await fetch('stocks.json');
+    allData = await res.json();
+    initFilters();
+    document.getElementById('searchBtn').addEventListener('click', () => filter(1));
+}
+
+function initFilters() {
+    let industries = new Set(allData.map(d=>d.industry).filter(Boolean));
+    let sel = document.getElementById('industry');
+    industries.forEach(i => { let o = document.createElement('option'); o.value=i; o.textContent=i; sel.appendChild(o); });
+    let mkts = new Set(allData.map(d=>d.market).filter(Boolean));
+    let msel = document.getElementById('market');
+    mkts.forEach(m => { let o = document.createElement('option'); o.value=m; o.textContent=m; msel.appendChild(o); });
+}
+
+function filter(page=1) {
+    let cap = document.getElementById('capRange').value;
+    let [minCap, maxCap] = cap ? cap.split(',').map(Number) : [null,null];
+    let maxClose = parseFloat(document.getElementById('maxClose').value) || null;
+    let industry = document.getElementById('industry').value;
+    let market = document.getElementById('market').value;
+    let macd = document.getElementById('macdCond').value;
+    let weekly = document.getElementById('weeklyCond').value;
+    let exCyb = document.getElementById('excludeCyb').checked;
+    let exKcb = document.getElementById('excludeKcb').checked;
+    let exST = document.getElementById('excludeST').checked;
+
+    let filtered = allData.filter(d => {
+        if (!d.close) return false;
+        let capVal = d.total_market_cap / 1e8;
+        if (minCap && capVal < minCap) return false;
+        if (maxCap && maxCap<999999 && capVal > maxCap) return false;
+        if (maxClose && d.close > maxClose) return false;
+        if (industry && d.industry !== industry) return false;
+        if (market && d.market !== market) return false;
+        if (exCyb && d.market==='创业板') return false;
+        if (exKcb && d.market==='科创板') return false;
+        if (exST && d.name && d.name.includes('ST')) return false;
+        if (macd==='golden_cross') {
+        if (!(d.mac_dif>d.mac_dea && d.prev_mac_dif<=d.prev_mac_dea)) return false;
+            } else if (macd==='dead_cross') {
+                if (!(d.mac_dif<d.mac_dea && d.prev_mac_dif>=d.prev_mac_dea)) return false;
+            } else if (macd==='dif_gt_dea') {
+                if (!(d.mac_dif>d.mac_dea)) return false;
+            } else if (macd==='hist_gt_0') {
+                if (!(d.mac_hist>0)) return false;
+            }
+       // 周线绿柱缩减+0轴上将金叉 (weeklyCond)
+         if (weekly === 'week_green_shrink_gold_zero') {
+             if (!(d.weekMacDif > 0 && d.weekMacDea > 0 &&
+            d.weekMacHist < 0 &&
+            d.prevWeekMacHist !== null && d.weekMacHist > d.prevWeekMacHist &&
+            d.weekMacDif < d.weekMacDea &&
+           (d.weekMacDea - d.weekMacDif) / d.weekMacDea < 0.02)) return false;
+        }
+        return true;
+    });
+    currentPage = page;
+    let total = filtered.length;
+    let start = (page-1)*pageSize;
+    let pageData = filtered.slice(start, start+pageSize);
+    renderTable(pageData);
+    renderPagination(page, Math.ceil(total/pageSize), total);
+}
+
+function renderTable(data) {
+    let tbody = document.querySelector('#resultTable tbody');
+    tbody.innerHTML = '';
+    if (data.length===0) {
+        tbody.innerHTML = '<tr><td colspan="9">无数据</td></tr>';
+        return;
+    }
+    data.forEach(d => {
+        let cap = (d.total_market_cap/1e8).toFixed(2);
+        let hclass = d.mac_hist>0 ? 'positive' : 'negative';
+        tbody.innerHTML += `<tr>
+            <td>${d.code}</td><td>${d.name||''}</td><td><span class="badge">${d.industry||''}</span></td><td>${d.market||''}</td>
+            <td>${cap}</td><td>${d.close}</td><td>${d.mac_dif?.toFixed(4)||''}</td><td>${d.mac_dea?.toFixed(4)||''}</td><td class="${hclass}">${d.mac_hist?.toFixed(4)||''}</td>
+        </tr>`;
+    });
+    document.getElementById('resultTable').style.display='table';
+}
+
+function renderPagination(page, totalPages, total) {
+    let div = document.getElementById('pagination');
+    div.innerHTML = `<span>第${page}/${totalPages}页 共${total}条</span>
+        <button ${page<=1?'disabled':''} onclick="filter(${page-1})">上一页</button>
+        <button ${page>=totalPages?'disabled':''} onclick="filter(${page+1})">下一页</button>`;
+}
+
+window.onload = loadData;
+</script>
+</body>
+</html>
