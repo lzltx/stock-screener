@@ -2,16 +2,16 @@ name: Update Stock Data
 
 on:
   schedule:
-    - cron: '30 7 * * 1-5'   # 北京时间15:30 -> UTC 7:30
+    - cron: '30 7 * * 1-5'
   workflow_dispatch:
 
 jobs:
   update:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4          # ✅ 已升级
       - name: Setup Python
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v5       # ✅ 已升级
         with:
           python-version: '3.9'
       - name: Install dependencies
