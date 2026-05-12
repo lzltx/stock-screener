@@ -1,0 +1,27 @@
+name: Update Stock Data
+
+on:
+  schedule:
+    - cron: '30 7 * * 1-5'   # 北京时间15:30 -> UTC 7:30
+  workflow_dispatch:
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.9'
+      - name: Install dependencies
+        run: pip install akshare pandas
+      - name: Run script
+        run: python downloadStock.py
+      - name: Commit and push if changed
+        run: |
+          git config user.name github-actions
+          git config user.email github-actions@github.com
+          git add stocks.json
+          git diff --staged --quiet || git commit -m "Update stocks.json"
+          git push
